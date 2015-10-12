@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "shelljs": "^0.5.3",
+    "yargs": "^3.27.0"
+  }
+}
