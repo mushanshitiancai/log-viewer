@@ -13,6 +13,12 @@ var async = require('async');
 var Conf = require('./lib/Conf');
 var Util = require('./lib/Util');
 
+if (typeof String.prototype.endsWith != 'function') {
+  String.prototype.endsWith = function(suffix) {
+    return this.indexOf(suffix, this.length - suffix.length) !== -1;
+  };
+}
+
 yargs.usage('Usage $0 <command> [options]');
 yargs.help('h');
 
