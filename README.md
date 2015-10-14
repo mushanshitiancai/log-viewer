@@ -2,11 +2,33 @@
 
 查看日志工具。
 
+## 使用
+
+```
+Usage log.js <command> [options]
+```
+
+可选的命令有：
+- all 根据配置，获取所有日志
+
+### 通用选项
+
+- `-r`: 指定正则表达式。默认只会显示匹配的日志条目。
+- `-a`: 显示所有日志。与-r配合使用
+
 ## TODO
-- [ ] 读取配置文件，获得路径规则，日志规则
+- [x] 读取配置文件，获得路径规则，日志规则
+- [x] 按日志的一行来处理文件，而不是文本的一行
+- [x] 根据分钟来筛选
+- [x] -r 正则参数(只显示匹配的行)
+- [x] -a 显示所有行
+- [x] 高亮颜色可配置
+- [ ] 方便的tail操作
 
 
 ## Config
+
+配置规则demo：
 
 ```
 {
@@ -24,8 +46,19 @@
 			"log_time_regex"   : "\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}"
 		},
 	}
+	"search_color":"red"
 }
 ```
+
+### logs配置项
+
+logs中指定了多个日志配置。每个日志配置，可以指定：
+- paths： 文件夹路径，数组。
+- file_regex: 过滤文件名的正则表达式，数组。
+- log_header_regex：匹配一行日志的正则表达式。直到遇到下一个下一个匹配，都认为是这一行的日志。
+- log_time_regex： 匹配日志中时间信息，用来进行时间过滤
+
+**扩展：**
 
 - <1>: 指定文件夹路径，可以使用`@(param)`的表达式，这个表达式，会在运行的时候被对应的运行参数的值替换掉。举个例子：
 
@@ -38,3 +71,30 @@ node log.js --user "toybn"
 - <2>: 过滤日志文件的正则表达式，可以使用`T(YYYY-MM-DD)`这样的表达式，这个表达式，会在运行的时候替换成对应的时间。
   
   举个例子，在2015年10月14日运行脚本，<2>处的file_regex为`[ "input","20151014-log" ]`
+
+### search_color配置项
+
+指定搜索(-r)高亮的颜色，选择有：
+
+- black
+- red
+- green
+- yellow
+- blue
+- magenta
+- cyan
+- white
+- gray
+- grey
+
+- bgBlack
+- bgRed
+- bgGreen
+- bgYellow
+- bgBlue
+- bgMagenta
+- bgCyan
+- bgWhite
+
+具体参考：https://www.npmjs.com/package/colors
+

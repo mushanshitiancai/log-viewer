@@ -24,15 +24,11 @@ yargs.help('h');
 
 // 获取配置中配置的路径下的所有日志
 yargs.command('all','fetch all log',function(yargs) {
-	var argv = yargs.reset()
-		.usage('Usage: $0 all user minute')
+	yargs.reset()
+		.usage('Usage: $0 all')
 		.help('h')
-		.option('m',{
-			alias: 'minute',
-			describe: '查看提前多少分钟到现在的日志',
-			type: 'string'
-		})
-		.argv;
+	Util.registerParams(yargs);
+	var argv = yargs.argv;
 
 	if(argv.m){
 		var startTime = moment().subtract(argv.m,'m');
@@ -41,7 +37,7 @@ yargs.command('all','fetch all log',function(yargs) {
 	}
 
 	Conf.init(argv);
-	fetchAllLog(startTime,process.stdout);
+	fetchAllLog(argv,startTime,process.stdout);
 });
 yargs.command('test','test',function(yargs){
 	test();
@@ -49,7 +45,7 @@ yargs.command('test','test',function(yargs){
 var argv = yargs.argv;
 
 
-function fetchAllLog(startTime,output){
+function fetchAllLog(argv,startTime,output){
 	var conf = Conf.get();
 	var jobs = [];
 	for(var logName in conf.logs){
@@ -66,7 +62,7 @@ function fetchAllLog(startTime,output){
 					filePath = path.join(logConfPath,filePath);
 					if(new RegExp(fileNameReg).test(filePath)){
 						jobs.push(function(cb){
-							return fetchLog(filePath,startTime,output,logConf,cb);
+							return fetchLog(argv,filePath,startTime,output,logConf,cb);
 						});
 					}
 				}
@@ -78,7 +74,7 @@ function fetchAllLog(startTime,output){
 	async.series(jobs,function(err){});
 }
 
-function fetchLog(logPath,startTime,output,logConf,callback){
+function fetchLog(argv,logPath,startTime,output,logConf,callback){
 	logColor('======'+logPath+'========','red');
 	var input = fs.createReadStream(logPath);
 	var rl = readline.createInterface({
@@ -91,7 +87,7 @@ function fetchLog(logPath,startTime,output,logConf,callback){
 	rl.on('line',function(line){
 		if(line.match(new RegExp(logConf.log_header_regex))){
 			if(logLine){
-				dealWithLogLine(logLine,startTime,output,logConf);
+				dealWithLogLine(argv,logLine,startTime,output,logConf);
 			}
 			logLine = line+"\n";
 			return;
@@ -100,14 +96,14 @@ function fetchLog(logPath,startTime,output,logConf,callback){
 	});
 
 	rl.on('close',function(){
-		dealWithLogLine(logLine,startTime,output,logConf);
+		dealWithLogLine(argv,logLine,startTime,output,logConf);
 		callback(null)
 	})
 }
 
-function dealWithLogLine(logLine,startTime,output,logConf){
+function dealWithLogLine(argv,logLine,startTime,output,logConf){
 	if(startTime == 0){
-		output.write(logLine);
+		echoLogLine(argv,logLine,output);
 		return;
 	}
 
@@ -118,8 +114,29 @@ function dealWithLogLine(logLine,startTime,output,logConf){
 	// console.log(startTime.format());
 	// console.log(timeStr);
 	if(moment(timeStr).isAfter(startTime)){
-		output.write(logLine);
+		echoLogLine(argv,logLine,output);
 	}
+}
+
+function echoLogLine(argv,line,output){
+	if(argv.r){
+		var reg = new RegExp(argv.r,'g');
+		if(reg.test(line)){
+			output.write(line.replace(reg,function(v){
+				if(Conf.get().search_color){
+					return v[Conf.get().search_color];
+				}else{
+					return v.red;
+				}
+			}));
+		}else{
+			if(argv.a){
+				output.write(line);
+			}
+		}
+		return;
+	}
+	output.write(line);
 }
 
 function log(str){
