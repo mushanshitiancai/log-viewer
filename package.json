@@ -1,6 +1,12 @@
 {
   "dependencies": {
+    "colors": "^1.1.2",
+    "lodash": "^3.10.1",
+    "moment": "^2.10.6",
     "shelljs": "^0.5.3",
+    "walk": "^2.3.9",
+    "walk-sync": "^0.2.5",
+    "window-size": "^0.1.2",
     "yargs": "^3.27.0"
   }
 }
