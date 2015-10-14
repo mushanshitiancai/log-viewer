@@ -2,19 +2,7 @@
 	"logs":{
 		"test":{
 			"paths"            : [ "test" ],
-			"file_regex"       : [ "input" ],
-			"log_header_regex" : "^DEBUG|^TRACE|^NOTICE|^WARNING|^FATAL",
-			"log_time_regex"   : "\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}"
-		},
-		"test2":{
-			"paths"            : [ "test" ],
-			"file_regex"       : [ "[^\\.]log" ],
-			"log_header_regex" : "^DEBUG|^TRACE|^NOTICE|^WARNING|^FATAL",
-			"log_time_regex"   : "\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}"
-		},
-		"test3":{
-			"paths"            : [ "test/@(user)" ],
-			"file_regex"       : [ "input" ],
+			"file_regex"       : [ "T(YYYYMMDD)" ],
 			"log_header_regex" : "^DEBUG|^TRACE|^NOTICE|^WARNING|^FATAL",
 			"log_time_regex"   : "\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}"
 		}
