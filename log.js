@@ -3,13 +3,15 @@
 var fs = require('fs');
 var path = require('path');
 var readline = require('readline')
-var window_size = require('window-size');
+var windowSize = require('window-size');
 var colors = require('colors');
 var moment = require('moment');
 var yargs = require('yargs');
 var walkSync = require('walk-sync');
 var _ = require('lodash');
-var Conf = require('./lib/config');
+var async = require('async');
+var Conf = require('./lib/Conf');
+var Util = require('./lib/Util');
 
 yargs.usage('Usage $0 <command> [options]');
 yargs.help('h');
@@ -19,13 +21,21 @@ yargs.command('all','fetch all log',function(yargs) {
 	var argv = yargs.reset()
 		.usage('Usage: $0 all user minute')
 		.help('h')
+		.option('m',{
+			alias: 'minute',
+			describe: '查看提前多少分钟到现在的日志',
+			type: 'string'
+		})
 		.argv;
 
-	var user = argv._[0];
-	var minute = argv._[1];
-	var startTime   = moment().subtract(minute,'m');
+	if(argv.m){
+		var startTime = moment().subtract(argv.m,'m');
+	}else{
+		var startTime = 0;
+	}
 
-	fetchAllLog(user,startTime,process.stdout);
+	Conf.init(argv);
+	fetchAllLog(startTime,process.stdout);
 });
 yargs.command('test','test',function(yargs){
 	test();
@@ -33,10 +43,11 @@ yargs.command('test','test',function(yargs){
 var argv = yargs.argv;
 
 
-function fetchAllLog(user,startTime,output){
-	var conf = Conf.getConf();
+function fetchAllLog(startTime,output){
+	var conf = Conf.get();
+	var jobs = [];
 	for(var logName in conf.logs){
-		log('logName: '+logName);
+		// log('logName: '+logName);
 		var logConf = conf.logs[logName];
 		for(var logConfPathIndex in logConf.paths){
 			var logConfPath = logConf.paths[logConfPathIndex];
@@ -44,20 +55,25 @@ function fetchAllLog(user,startTime,output){
 			var filePaths = walkSync(logConfPath,{directories:false});
 			// log(filePaths);
 			filePaths.forEach(function(filePath){
-				for(fileNameRegIndex in logConf.file_regex){
+				for(var fileNameRegIndex in logConf.file_regex){
 					var fileNameReg = logConf.file_regex[fileNameRegIndex];
 					filePath = path.join(logConfPath,filePath);
 					if(new RegExp(fileNameReg).test(filePath)){
-						fetchLog(filePath,startTime,output,logConf);
+						jobs.push(function(cb){
+							return fetchLog(filePath,startTime,output,logConf,cb);
+						});
 					}
 				}
 			});
 		}
 	}
+
+	// log(jobs);
+	async.series(jobs,function(err){});
 }
 
-function fetchLog(logPath,startTime,output,logConf){
-	log('======'+logPath+'========');
+function fetchLog(logPath,startTime,output,logConf,callback){
+	logColor('======'+logPath+'========','red');
 	var input = fs.createReadStream(logPath);
 	var rl = readline.createInterface({
 		input:input,
@@ -69,7 +85,6 @@ function fetchLog(logPath,startTime,output,logConf){
 	rl.on('line',function(line){
 		if(line.match(new RegExp(logConf.log_header_regex))){
 			if(logLine){
-				log('==>'+logPath+'<==');
 				dealWithLogLine(logLine,startTime,output,logConf);
 			}
 			logLine = line+"\n";
@@ -80,11 +95,16 @@ function fetchLog(logPath,startTime,output,logConf){
 
 	rl.on('close',function(){
 		dealWithLogLine(logLine,startTime,output,logConf);
-		log('======================');
+		callback(null)
 	})
 }
 
 function dealWithLogLine(logLine,startTime,output,logConf){
+	if(startTime == 0){
+		output.write(logLine);
+		return;
+	}
+
 	var match = logLine.match(new RegExp(logConf.log_time_regex));
 	var timeStr = match[0];
 	if(!timeStr) return;
@@ -100,9 +120,14 @@ function log(str){
 	console.log(str);
 }
 
+function logColor(str,color){
+	console.log(str[color]);
+}
+
+
+
 function test(){
-	var r = walkSync('.');
-	log(r);
+	echoColorLine('blue');
 }
 
 
