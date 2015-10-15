@@ -15,10 +15,10 @@ var filePath = 'test/tailtest';
 fs.writeFileSync(filePath,'');
 var index = 0;
 
-setInterval(add,1000);
+setInterval(add,5000);
 
 function add(){
-	for (var i = 3 - 1; i >= 0; i--) {
+	for (var i = 50 - 1; i >= 0; i--) {
 		fs.writeFileSync(filePath,'fuck'+(index++)+"\n",{flag:'a'});
 	};
 }

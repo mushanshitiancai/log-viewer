@@ -57,6 +57,26 @@ yargs.command('tail','tail command',function(yargs){
 	}
 });
 
+yargs.command('list','list all relate log file accond config',function(yargs){
+	yargs.reset();
+	yargs.usage('Usage: $0 list');
+	yargs.help('h');
+	var argv = yargs.argv;
+
+	Conf.init(argv);
+	listAllLogs(argv);
+});
+
+yargs.command('remove','remove all relate log file acconding to config',function(yargs){
+	yargs.reset();
+	yargs.usage('Usage: $0 list');
+	yargs.help('h');
+	var argv = yargs.argv;
+
+	Conf.init(argv);
+	removeAllLogs(argv);
+});
+
 yargs.command('test','test',function(yargs){
 	test();
 });
@@ -177,6 +197,58 @@ function echoLogLine(argv,line,output){
 	}
 	output.write(line);
 }
+
+
+function listAllLogs(argv){
+	var conf = Conf.get();
+	var legalPaths = [];
+
+	for(var logName in conf.logs){
+		var logConf = conf.logs[logName];
+
+		for(var logConfPathIndex in logConf.paths){
+			var logConfPath = logConf.paths[logConfPathIndex];
+			var filePaths = walkSync(logConfPath,{directories:false});
+
+			log(Util.getColorString(logConfPath+":",'red'));
+			filePaths.forEach(function(filePath){
+				for(var fileNameRegIndex in logConf.file_regex){
+					var fileNameReg = logConf.file_regex[fileNameRegIndex];
+					filePath = path.join(logConfPath,filePath);
+					if(new RegExp(fileNameReg).test(filePath)){
+						legalPaths.push(filePath);
+						log(filePath);
+					}
+				}
+			});
+		}
+	}
+	return legalPaths;
+}
+
+function removeAllLogs(argv){
+	var paths = listAllLogs(argv);
+	if(paths.length == 0){
+		log('没有日志文件');
+		return ;
+	}
+
+	process.stdout.write('确定删除以上日志? (y/n):');
+
+	process.stdin.resume()
+	process.stdin.on('data',function(data){
+		if(data.toString().indexOf('y')!=-1){
+			for(var i in paths){
+				fs.unlinkSync(paths[i]);
+			}
+			log('删除完成');
+			process.stdin.pause();
+		}
+	});
+
+	
+}
+
 
 function log(str){
 	console.log(str);
