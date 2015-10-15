@@ -2,7 +2,7 @@
 	"logs":{
 		"test":{
 			"paths"            : [ "test" ],
-			"file_regex"       : [ "biglog" ],
+			"file_regex"       : [ "input" ],
 			"log_header_regex" : "^DEBUG|^TRACE|^NOTICE|^WARNING|^FATAL",
 			"log_time_regex"   : "\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}"
 		}

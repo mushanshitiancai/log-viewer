@@ -140,34 +140,34 @@ function echoLogLine(argv,line,output){
 	if(argv.r){
 		var reg = new RegExp(argv.r,'g');
 		if(reg.test(line)){
-			var lineSplit = line.split(reg);
-			var lineMatch = line.match(reg);
+			// var lineSplit = line.split(reg);
+			// var lineMatch = line.match(reg);
 
-			var str = '';
-			for(var i in lineSplit){
-				if(Conf.get().search_color[1] ){
-					str = lineSplit[i][Conf.get().search_color[1]]
-				}else{
-					str = lineSplit[i];
-				}
-				output.write(str);
-				if(lineMatch[i]){
-					if(Conf.get().search_color[0]){
-						str = lineMatch[i][Conf.get().search_color[0]]
-					}else{
-						str = lineMatch[i].red;
-					}
-				}
-				output.write(str);
-			}
-
-			// output.write(line.replace(reg,function(v){
-			// 	if(Conf.get().search_color){
-			// 		return v[Conf.get().search_color];
+			// var str = '';
+			// for(var i in lineSplit){
+			// 	if(Conf.get().search_color[1] ){
+			// 		str = lineSplit[i][Conf.get().search_color[1]]
 			// 	}else{
-			// 		return v.red;
+			// 		str = lineSplit[i];
 			// 	}
-			// }));
+			// 	output.write(str);
+			// 	if(lineMatch[i]){
+			// 		if(Conf.get().search_color[0]){
+			// 			str = lineMatch[i][Conf.get().search_color[0]]
+			// 		}else{
+			// 			str = lineMatch[i].red;
+			// 		}
+			// 	}
+			// 	output.write(str);
+			// }
+
+			output.write(line.replace(reg,function(v){
+				if(Conf.get().search_color){
+					return v[Conf.get().search_color];
+				}else{
+					return v.red;
+				}
+			}));
 		}else{
 			if(argv.a){
 				output.write(line);

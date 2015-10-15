@@ -25,6 +25,7 @@ Usage log.js <command> [options]
 - [x] 高亮颜色可配置
 
 - [ ] 优化效率
+- [ ] 列出日志
 - [ ] 删除日志
 - [x] 实现tail功能
 - [x] 方便的tail操作，可以回车插入彩色分割行
@@ -32,6 +33,8 @@ Usage log.js <command> [options]
 - [x] 方便的tail操作，支持正则搜索
 - [x] 方便的tail操作，支持随时输入正则，更新搜索正则
 - [ ] 方便的tail操作，支持随时输入正则，搜索上节内容
+- [ ] 用上日志系统参数
+- [ ] 给node-tail提issue
 
 ## Config
 
