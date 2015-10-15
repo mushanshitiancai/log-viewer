@@ -23,8 +23,14 @@ Usage log.js <command> [options]
 - [x] -r 正则参数(只显示匹配的行)
 - [x] -a 显示所有行
 - [x] 高亮颜色可配置
-- [ ] 方便的tail操作
 
+- [ ] 优化效率
+- [ ] 删除日志
+- [ ] 实现tail功能
+- [ ] 方便的tail操作，可以回车插入彩色分割行
+- [ ] 方便的tail操作，可以输入文本，插入带tag的彩色分割行
+- [ ] 方便的tail操作，支持正则搜索
+- [ ] 方便的tail操作，支持随时输入正则，搜索上节内容
 
 ## Config
 
@@ -98,3 +104,39 @@ node log.js --user "toybn"
 
 具体参考：https://www.npmjs.com/package/colors
 
+## 效率问题
+
+```
+$ time grep -E 'fuck' /home/mazhibin/logs/tools.20151014.log
+NOTICE: fuck
+NOTICE: fuck
+
+real	0m0.890s
+user	0m0.678s
+sys	0m0.212s
+$ time node log.js all -r 'fuck'
+======/home/mazhibin/logs/cp.20151014.log========
+======/home/mazhibin/logs/tools.20151014.log========
+NOTICE: fuck
+NOTICE: fuck
+
+real	0m6.926s
+user	0m6.815s
+sys	0m0.879s
+```
+
+## tail问题
+
+用nodejs写tail功能一直失败。。。。目前使用tail库（node库就是多。。），有空了理解下源码，如何实现的。
+
+node-tail也不行。。。。依然会出现从头输出的情况？ TODO 提出issue。
+tail-forever可以，但是可以看得出来，是轮询的。
+先用后者吧，有空一定弄个明白。
+
+## 命令行问题
+
+"bin": {
+    "window-size": "cli.js"
+  },
+
+这个怎么用？

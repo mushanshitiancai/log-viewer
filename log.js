@@ -12,6 +12,7 @@ var _ = require('lodash');
 var async = require('async');
 var Conf = require('./lib/Conf');
 var Util = require('./lib/Util');
+var Tail = require('./lib/Tail');
 
 if (typeof String.prototype.endsWith != 'function') {
   String.prototype.endsWith = function(suffix) {
@@ -39,6 +40,23 @@ yargs.command('all','fetch all log',function(yargs) {
 	Conf.init(argv);
 	fetchAllLog(argv,startTime,process.stdout);
 });
+
+yargs.command('tail','tail command',function(yargs){
+	yargs.reset();
+	yargs.usage('Usage: $0 tail filepath [options]');
+	yargs.help('h');
+	Util.registerParams(yargs);
+	var argv = yargs.argv;
+
+	// console.log(argv);
+	if(argv._[0] == undefined){
+		console.error('请输入目标文件路径');
+	}else{
+		Conf.init(argv);
+		Tail.tail(argv,argv._[1]);
+	}
+});
+
 yargs.command('test','test',function(yargs){
 	test();
 });
@@ -122,13 +140,34 @@ function echoLogLine(argv,line,output){
 	if(argv.r){
 		var reg = new RegExp(argv.r,'g');
 		if(reg.test(line)){
-			output.write(line.replace(reg,function(v){
-				if(Conf.get().search_color){
-					return v[Conf.get().search_color];
+			var lineSplit = line.split(reg);
+			var lineMatch = line.match(reg);
+
+			var str = '';
+			for(var i in lineSplit){
+				if(Conf.get().search_color[1] ){
+					str = lineSplit[i][Conf.get().search_color[1]]
 				}else{
-					return v.red;
+					str = lineSplit[i];
 				}
-			}));
+				output.write(str);
+				if(lineMatch[i]){
+					if(Conf.get().search_color[0]){
+						str = lineMatch[i][Conf.get().search_color[0]]
+					}else{
+						str = lineMatch[i].red;
+					}
+				}
+				output.write(str);
+			}
+
+			// output.write(line.replace(reg,function(v){
+			// 	if(Conf.get().search_color){
+			// 		return v[Conf.get().search_color];
+			// 	}else{
+			// 		return v.red;
+			// 	}
+			// }));
 		}else{
 			if(argv.a){
 				output.write(line);
@@ -146,7 +185,6 @@ function log(str){
 function logColor(str,color){
 	console.log(str[color]);
 }
-
 
 
 function test(){

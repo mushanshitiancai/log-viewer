@@ -1,0 +1,96 @@
+var fs = require('fs');
+var moment = require('moment');
+var Util = require('./Util');
+var Conf = require('./Conf');
+var readline = require('readline');
+var async = require('async');
+var EventEmitter = require('events').EventEmitter;
+
+module.exports = Tail ={
+	autoTag: 0,
+	lastOffset: 0,
+	isChanged: false,
+	isDumping: false,
+
+	emitter: new EventEmitter(),
+	argv: null,
+	filePath: null,
+
+	tail: function(argv,filePath){
+		this.argv = argv;
+		this.filePath = filePath;
+		this.emitter.on('change',this.dump);
+
+		this.dumpPart(argv,filePath,0);
+
+		var that = this;
+		fs.watch(filePath,function(event,filename){
+			if(event == 'change'){
+				// if(this.isDumping) Tail.isChanged = true;
+				// else Tail.dumpPart(argv,filePath,Tail.lastOffset);
+				Tail.emitter.emit('change',argv,filePath,that.lastOffset);
+			}
+		});
+	},
+
+	dump: function(argv,filePath,start){
+		Tail.dumpPart(argv,filePath,start);
+	},
+
+	dumpPart: function(argv,filePath,start){
+		this.isDumping = true;
+		var input = fs.createReadStream(filePath,{encoding:'utf-8',start:start});
+		var output = process.stdout;
+		var size = 0;
+
+		input.on('data',function(text){
+			size += text.length;
+
+			if(argv.r){
+				text = Util.getColorString(text,Conf.get['search_color'],new RegExp(argv.r,'g'));  //TODO compile regex
+			}
+			if(output.write(text) === false){
+				input.pause();
+			}
+		});
+
+		var output_drain = function(){
+			input.resume();
+		};
+		output.on('drain',output_drain);
+
+		input.on('end',function(){
+			output.removeListener('drain',output_drain);
+			Tail.lastOffset = size+start;
+			// output.end();
+
+			// if(this.isChanged){
+			// 	this.isDumping = false; 
+			// 	this.isChanged = false;
+			// 	this.dumpPart(argv,filePath,size+start);
+			// }else{
+			// 	this.lastOffset = size+start;
+			// }
+		});
+	},
+
+	echoTagLine: function(tag){
+		if(tag == undefined) tag = 'autoTag: '+this.autoTag;
+		console.log(tag);
+		var lineColor = Conf.get('tag_line_color');
+		lineColor = Util.echoColorLine(lineColor);
+		var lineStr = Util.getWindowWidthString(' ',' '+tag+' ',null,moment().format('YYYY-MM-DD HH:mm:ss')+'   ',
+												'bgRed','red','red','red');
+		console.log(lineStr);
+		Util.echoColorLine(lineColor);
+	}
+
+
+}
+
+function test(){
+	Conf.init();
+	Tail.tail({},'test/tailtest');
+}
+
+test();
