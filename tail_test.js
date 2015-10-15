@@ -19,7 +19,7 @@ setInterval(add,5000);
 
 function add(){
 	for (var i = 50 - 1; i >= 0; i--) {
-		fs.writeFileSync(filePath,'fuck'+(index++)+"\n",{flag:'a'});
+		fs.writeFileSync(filePath,'fuck'+(index++)+"\na\n",{flag:'a'});
 	};
 }
 

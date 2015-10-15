@@ -9,10 +9,14 @@ Usage log.js <command> [options]
 ```
 
 可选的命令有：
-- all 根据配置，获取所有日志
+- list             列出所有匹配日志
+- remove           删除所有匹配日志
+- all              根据配置，获取所有日志
+- tail filepath    以tail方式查看某个日志
 
 ### 通用选项
 
+- `-l`: 指定特定的日志系统
 - `-r`: 指定正则表达式。默认只会显示匹配的日志条目。
 - `-a`: 显示所有日志。与-r配合使用
 
@@ -31,9 +35,9 @@ Usage log.js <command> [options]
 - [x] 方便的tail操作，支持正则搜索
 - [x] 方便的tail操作，支持随时输入正则，更新搜索正则
 - [x] 用上日志系统参数
+- [x] 方便的tail操作，支持随时输入正则，搜索上节内容(而且只显示否所内容)
 
 - [ ] 时间筛选上，没必要每次都比较时间，因为日志是线性的
-- [ ] 方便的tail操作，支持随时输入正则，搜索上节内容(而且只显示否所内容)
 - [ ] 优化效率
 - [ ] 给node-tail提issue
 
@@ -95,19 +99,22 @@ node log.js --user "toybn"
 - magenta
 - cyan
 - white
-- gray
-- grey
 
-- bgBlack
-- bgRed
-- bgGreen
-- bgYellow
-- bgBlue
-- bgMagenta
-- bgCyan
-- bgWhite
+## tail问题
 
-具体参考：https://www.npmjs.com/package/colors
+用nodejs写tail功能一直失败。。。。目前使用tail库（node库就是多。。），有空了理解下源码，如何实现的。
+
+node-tail也不行。。。。依然会出现从头输出的情况？ TODO 提出issue。
+tail-forever可以，但是可以看得出来，是轮询的。
+先用后者吧，有空一定弄个明白。
+
+## 命令行问题
+
+"bin": {
+    "window-size": "cli.js"
+  },
+
+这个怎么用？
 
 ## 效率问题
 
@@ -129,19 +136,3 @@ real	0m6.926s
 user	0m6.815s
 sys	0m0.879s
 ```
-
-## tail问题
-
-用nodejs写tail功能一直失败。。。。目前使用tail库（node库就是多。。），有空了理解下源码，如何实现的。
-
-node-tail也不行。。。。依然会出现从头输出的情况？ TODO 提出issue。
-tail-forever可以，但是可以看得出来，是轮询的。
-先用后者吧，有空一定弄个明白。
-
-## 命令行问题
-
-"bin": {
-    "window-size": "cli.js"
-  },
-
-这个怎么用？
