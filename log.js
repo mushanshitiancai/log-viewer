@@ -45,6 +45,11 @@ yargs.command('tail','tail command',function(yargs){
 	yargs.reset();
 	yargs.usage('Usage: $0 tail filepath [options]');
 	yargs.help('h');
+  yargs.option('o',{
+    alias: 'only',
+    describe: '只输出匹配的日志行',
+    type: 'boolean'
+  });
 	Util.registerParams(yargs);
 	var argv = yargs.argv;
 
@@ -246,7 +251,7 @@ function removeAllLogs(argv){
 		}
 	});
 
-	
+
 }
 
 
@@ -262,5 +267,3 @@ function logColor(str,color){
 function test(){
 	echoColorLine('blue');
 }
-
-

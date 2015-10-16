@@ -9,5 +9,6 @@
 	},
 	"search_color": "bgRed",
 	"tag_line_color": "order",
-	"tail_separator": "\\n(?=DEBUG)|\\n(?=TRACE)|\\n(?=NOTICE)|\\n(?=WARNING)|\\n(?=FATAL)"
+	"tail_separator": "\\n(?=DEBUG)|\\n(?=TRACE)|\\n(?=NOTICE)|\\n(?=WARNING)|\\n(?=FATAL)",
+	"tail_header": "^DEBUG|^TRACE|^NOTICE|^WARNING|^FATAL"
 }
