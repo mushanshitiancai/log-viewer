@@ -4,7 +4,7 @@
 ## 使用
 
 ```
-Usage log.js <command> [options]
+Usage ./log.js <command> [options]
 ```
 
 可选的命令有：
